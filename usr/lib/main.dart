@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
+import 'screens/overlay_widget.dart';
 
 void main() {
   runApp(const AviatorPredictorApp());
+}
+
+// Entry point for the overlay
+@pragma("vm:entry-point")
+void overlayMain() {
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: OverlayWidget(),
+  ));
 }
 
 class AviatorPredictorApp extends StatelessWidget {

@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:io';
+import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'package:flutter/material.dart';
+import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import '../services/mock_predictor.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -98,6 +101,35 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return const Color(0xFFE91E63); // Pink/Red for high
   }
 
+  Future<void> _enableOverlay() async {
+    if (kIsWeb) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Overlay mode is only available on Android devices.")),
+      );
+      return;
+    }
+
+    if (Platform.isAndroid) {
+      bool? status = await FlutterOverlayWindow.isPermissionGranted();
+      if (status == false) {
+        bool? granted = await FlutterOverlayWindow.requestPermission();
+        if (granted != true) return;
+      }
+
+      await FlutterOverlayWindow.showOverlay(
+        enableDrag: true,
+        overlayTitle: "Aviator Predictor",
+        overlayContent: "Predicting...",
+        flag: OverlayFlag.defaultFlag,
+        alignment: OverlayAlignment.centerLeft,
+        visibility: NotificationVisibility.visibilitySecret,
+        positionGravity: PositionGravity.auto,
+        height: 300,
+        width: 300,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,6 +139,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.layers),
+            tooltip: "Floating Mode",
+            onPressed: _enableOverlay,
+          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {},
